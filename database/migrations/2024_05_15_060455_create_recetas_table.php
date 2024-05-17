@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->String('nombre');
             $table->String('descripcion');
+            $table->String('img_url');
             $table->unsignedBigInteger('id_chef');
             $table->foreign('id_chef')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();

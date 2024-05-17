@@ -8,12 +8,21 @@ use App\Models\Receta;
 use App\Models\Paso;
 use App\Models\Ingrediente;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Validator;
 
 class RecipesController extends Controller
 {
-    public function getRecetas() : JsonResponse{
-        $recetas = Receta::all();
-        return response()->json(['recetas'=>$recetas],200);
+    public function getRecetas(Request $request): JsonResponse
+    {
+        $query = $request->input('nombre');
+
+        if ($query) {
+            $recetas = Receta::where('nombre', 'LIKE', '%' . $query . '%')->get();
+        } else {
+            $recetas = Receta::all();
+        }
+
+        return response()->json(['recetas' => $recetas], 200);
     }
 
     public function getRecetaById($id) :JsonResponse{
@@ -30,19 +39,28 @@ class RecipesController extends Controller
 
     public function create(Request $request)
     {
-        $request->validate([
-            'nombre' => 'required|string',
+        $validator = Validator::make($request->all(), [
+            'nombre' => 'required|string|max:255',
             'descripcion' => 'required|string',
             'id_chef' => 'required|exists:users,id'
         ]);
-
-        $receta = Receta::create([
-            'nombre' => $request->nombre,
-            'descripcion' => $request->descripcion,
-            'id_chef' => $request->id_chef
-        ]);
-
-        return response()->json([],201);
+    
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+    
+        try {
+            $receta = Receta::create([
+                'nombre' => $request->nombre,
+                'descripcion' => $request->descripcion,
+                'id_chef' => $request->id_chef
+            ]);
+            return response()->json(['receta' => $receta], 201);
+        } catch (\Exception $e) {
+            // Log the exception
+            \Log::error('Error creating recipe: '.$e->getMessage());
+            return response()->json(['error' => 'Error creating recipe'], 500);
+        }
     }
 
     public function update(Request $request, $id)

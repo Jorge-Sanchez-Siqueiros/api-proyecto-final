@@ -35,4 +35,32 @@ class RecetaFavController extends Controller
 
         return response()->json(['message' => 'Registro de receta favorita eliminado correctamente'], 200);
     }
+
+    public function toggleLike(Request $request)
+    {
+        $request->validate([
+            'id_receta' => 'required|exists:recetas,id',
+            'id_user' => 'required|exists:users,id'
+        ]);
+
+        $idReceta = $request->input('id_receta');
+        $idUsuario = $request->input('id_user');
+
+        $like = RecetaFav::where('id_receta', $idReceta)->where('id_user', $idUsuario)->first();
+
+        if ($like) {
+            // Si ya existe el like, eliminarlo
+            $like->delete();
+            $liked = false;
+        } else {
+            // Si no existe, agregar el like
+            RecetaFav::create([
+                'id_receta' => $idReceta,
+                'id_user' => $idUsuario,
+            ]);
+            $liked = true;
+        }
+
+        return response()->json(['liked' => $liked]);
+    }
 }

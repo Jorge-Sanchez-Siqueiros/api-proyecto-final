@@ -9,10 +9,18 @@ class IngredienteController extends Controller
 {
     public function create(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'descripcion' => 'required|string',
+            'numero' => 'required|integer',
             'id_receta' => 'required|exists:recetas,id'
         ]);
+
+
+        if ($validator->fails()) {
+            \Log::warning('Validation failed: ', $validator->errors()->toArray());
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
 
         $ingrediente = Ingrediente::create([
             'descripcion' => $request->descripcion,

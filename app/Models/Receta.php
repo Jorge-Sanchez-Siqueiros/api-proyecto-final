@@ -12,7 +12,8 @@ class Receta extends Model
     protected $fillable = [
         'nombre',
         'descripcion',
-        'id_chef'
+        'id_chef',
+        'img_url'
     ];
 
     public function chef()

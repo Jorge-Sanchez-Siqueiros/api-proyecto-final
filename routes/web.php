@@ -23,6 +23,8 @@ Route::get("/recetas",[RecipesController::class,'getRecetas']);
 
 Route::get("/recetas/{id}",[RecipesController::class,'getRecetaById']);
 
+Route::get('/favoritas/{id}', [RecetaFavController::class, 'returnFavorites']);
+
 Route::post('/recetas', [RecipesController::class, 'create']);
 Route::put('/recetas/{id}', [RecipesController::class, 'update']);
 Route::delete('/recetas/{id}', [RecipesController::class, 'delete']);
@@ -35,8 +37,8 @@ Route::post('/pasos', [PasoController::class, 'create']);
 Route::put('/pasos/{id}', [PasoController::class, 'update']);
 Route::delete('/pasos/{id}', [PasoController::class, 'delete']);
 
-Route::post('/receta_fav', [RecetaFavController::class, 'create']);
-Route::delete('/receta_fav/{id}', [RecetaFavController::class, 'delete']);
+Route::post('/receta_fav', [RecetaFavController::class, 'toggleLike']);
+Route::get('/recetas/{id}/favorite', [RecetaFavController::class, 'checkFavorite']);
 
 Route::get('/', function () {
     return view('welcome');

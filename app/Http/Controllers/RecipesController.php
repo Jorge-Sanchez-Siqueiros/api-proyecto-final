@@ -39,13 +39,16 @@ class RecipesController extends Controller
 
     public function create(Request $request)
     {
+        \Log::info('Request received: ', $request->all());
         $validator = Validator::make($request->all(), [
             'nombre' => 'required|string|max:255',
             'descripcion' => 'required|string',
-            'id_chef' => 'required|exists:users,id'
+            'id_chef' => 'required',
+            'img_url' =>  'required'
         ]);
     
         if ($validator->fails()) {
+            \Log::warning('Validation failed: ', $validator->errors()->toArray());
             return response()->json(['errors' => $validator->errors()], 422);
         }
     
@@ -53,7 +56,8 @@ class RecipesController extends Controller
             $receta = Receta::create([
                 'nombre' => $request->nombre,
                 'descripcion' => $request->descripcion,
-                'id_chef' => $request->id_chef
+                'id_chef' => $request->id_chef,
+                'img_url'  => $request->img_url
             ]);
             return response()->json(['receta' => $receta], 201);
         } catch (\Exception $e) {

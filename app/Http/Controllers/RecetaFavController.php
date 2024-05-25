@@ -97,7 +97,7 @@ class RecetaFavController extends Controller
         try {
             $favoriteRecipeIds = RecetaFav::where('id_user', $id)->pluck('id_receta');
             $favoritas = Receta::whereIn('id', $favoriteRecipeIds)->get();
-            return response()->json(['favorites' => $favoritas], 200);
+            return response()->json(['favoritas' => $favoritas], 200);
         } catch (\Exception $e) {
             \Log::error('Error fetching favorite recipes: ' . $e->getMessage());
             return response()->json(['error' => 'Error fetching favorite recipes'], 500);

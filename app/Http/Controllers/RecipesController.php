@@ -25,6 +25,10 @@ class RecipesController extends Controller
         return response()->json(['recetas' => $recetas], 200);
     }
 
+    public function getRecetasByChef($id){
+        
+    }
+
     public function getRecetaById($id) :JsonResponse{
         $receta = Receta::find($id);
         if($receta){

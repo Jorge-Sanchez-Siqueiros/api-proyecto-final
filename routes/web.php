@@ -25,6 +25,8 @@ Route::get("/recetas/{id}",[RecipesController::class,'getRecetaById']);
 
 Route::get('/favoritas/{id}', [RecetaFavController::class, 'returnFavorites']);
 
+Route::get('/misRecetas/{id}', [RecipesController::class, 'getRecetasByChef']);
+
 Route::post('/recetas', [RecipesController::class, 'create']);
 Route::put('/recetas/{id}', [RecipesController::class, 'update']);
 Route::delete('/recetas/{id}', [RecipesController::class, 'delete']);

@@ -26,7 +26,12 @@ class RecipesController extends Controller
     }
 
     public function getRecetasByChef($id){
-        
+        if (!$id) {
+            return response()->json(['error' => 'Se necesita un usuario'], 422);
+        }
+
+        $recetas = Receta::where('id_chef',$id)->get();
+        return response()->json(['recetas'=>$recetas]);
     }
 
     public function getRecetaById($id) :JsonResponse{
@@ -47,51 +52,130 @@ class RecipesController extends Controller
         $validator = Validator::make($request->all(), [
             'nombre' => 'required|string|max:255',
             'descripcion' => 'required|string',
-            'id_chef' => 'required',
-            'img_url' =>  'required'
+            'img_url' => 'required|url',
+            'ingredientes' => 'required|array',
+            'ingredientes.*' => 'required|string',
+            'pasos' => 'required|array',
+            'pasos.*' => 'required|string',
         ]);
-    
+
+        // Verificar si la validación falla
         if ($validator->fails()) {
-            \Log::warning('Validation failed: ', $validator->errors()->toArray());
-            return response()->json(['errors' => $validator->errors()], 422);
+            return response()->json([
+                'message' => 'Error de validación',
+                'errors' => $validator->errors()
+            ], 422);
         }
-    
+
         try {
+            // Guardar la receta principal
             $receta = Receta::create([
+                'id_chef' => $request->id_chef,
                 'nombre' => $request->nombre,
                 'descripcion' => $request->descripcion,
-                'id_chef' => $request->id_chef,
-                'img_url'  => $request->img_url
+                'img_url' => $request->img_url,
             ]);
-            return response()->json(['receta' => $receta], 201);
+
+            // Guardar cada ingrediente
+            foreach ($request->ingredientes as $ingrediente) {
+                Ingrediente::create([
+                    'id_receta' => $receta->id,
+                    'descripcion' => $ingrediente,
+                ]);
+            }
+
+            // Guardar cada paso con su número
+            foreach ($request->pasos as $index => $paso) {
+                Paso::create([
+                    'id_receta' => $receta->id,
+                    'descripcion' => $paso,
+                    'numero' => $index + 1, // Asignar número basado en el índice
+                ]);
+            }
+
+            return response()->json([
+                'message' => 'Receta creada exitosamente',
+                'receta' => $receta
+            ], 201);
         } catch (\Exception $e) {
-            // Log the exception
+            // Registrar el error
             \Log::error('Error creating recipe: '.$e->getMessage());
-            return response()->json(['error' => 'Error creating recipe'], 500);
+
+            // Devolver una respuesta de error
+            return response()->json([
+                'message' => 'Hubo un error al crear la receta. Inténtalo de nuevo más tarde.',
+            ], 500);
         }
     }
 
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'nombre' => 'required|string',
+        \Log::info('Request received for update: ', $request->all());
+
+        // Validar los datos de entrada
+        $validator = Validator::make($request->all(), [
+            'nombre' => 'required|string|max:255',
             'descripcion' => 'required|string',
-            'id_chef' => 'required|exists:users,id'
+            'img_url' => 'required|url',
+            'ingredientes' => 'required|array',
+            'ingredientes.*' => 'required|string',
+            'pasos' => 'required|array',
+            'pasos.*' => 'required|string',
         ]);
 
-        $receta = Receta::find($id);
-
-        if (!$receta) {
-            return response()->json(['error' => 'Receta no encontrada'], 404);
+        // Verificar si la validación falla
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Error de validación',
+                'errors' => $validator->errors()
+            ], 422);
         }
 
-        $receta->update([
-            'nombre' => $request->nombre,
-            'descripcion' => $request->descripcion,
-            'id_chef' => $request->id_chef
-        ]);
+        try {
+            // Encontrar la receta por su ID
+            $receta = Receta::findOrFail($id);
 
-        return response()->json([], 200);
+            // Actualizar los datos de la receta
+            $receta->update([
+                'nombre' => $request->nombre,
+                'descripcion' => $request->descripcion,
+                'img_url' => $request->img_url,
+            ]);
+
+            // Eliminar ingredientes y pasos anteriores
+            Ingrediente::where('id_receta', $receta->id)->delete();
+            Paso::where('id_receta', $receta->id)->delete();
+
+            // Guardar los nuevos ingredientes
+            foreach ($request->ingredientes as $ingrediente) {
+                Ingrediente::create([
+                    'id_receta' => $receta->id,
+                    'descripcion' => $ingrediente,
+                ]);
+            }
+
+            // Guardar los nuevos pasos con su número
+            foreach ($request->pasos as $index => $paso) {
+                Paso::create([
+                    'id_receta' => $receta->id,
+                    'descripcion' => $paso,
+                    'numero' => $index + 1, // Asignar número basado en el índice
+                ]);
+            }
+
+            return response()->json([
+                'message' => 'Receta actualizada exitosamente',
+                'receta' => $receta
+            ], 200);
+        } catch (\Exception $e) {
+            // Registrar el error
+            \Log::error('Error updating recipe: '.$e->getMessage());
+
+            // Devolver una respuesta de error
+            return response()->json([
+                'message' => 'Hubo un error al actualizar la receta. Inténtalo de nuevo más tarde.',
+            ], 500);
+        }
     }
 
     public function delete($id)

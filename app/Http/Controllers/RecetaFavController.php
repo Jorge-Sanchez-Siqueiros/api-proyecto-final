@@ -13,7 +13,6 @@ class RecetaFavController extends Controller
     {
         $request->validate([
             'id_receta' => 'required|exists:recetas,id',
-            'id_user' => 'required|exists:users,id'
         ]);
 
         $recetaFav = RecetaFav::create([

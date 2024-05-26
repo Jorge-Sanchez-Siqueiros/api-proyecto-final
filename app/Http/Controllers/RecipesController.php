@@ -21,7 +21,7 @@ class RecipesController extends Controller
         } else {
             $recetas = Receta::all();
         }
-
+        
         return response()->json(['recetas' => $recetas], 200);
     }
 

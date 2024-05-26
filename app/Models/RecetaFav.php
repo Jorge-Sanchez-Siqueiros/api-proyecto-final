@@ -19,8 +19,4 @@ class RecetaFav extends Model
         return $this->belongsTo(Receta::class,'id_receta', 'id');
     }
 
-    public function user()
-    {
-        return $this->belongsTo(User::class,'id_usuario', 'id');
-    }
 }

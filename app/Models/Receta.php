@@ -16,8 +16,8 @@ class Receta extends Model
         'img_url'
     ];
 
-    public function chef()
+    public function favoritos()
     {
-        return $this->belongsTo(User::class,'id_chef', 'id');
+        return $this->hasMany(RecetaFav::class, 'id_receta');
     }
 }

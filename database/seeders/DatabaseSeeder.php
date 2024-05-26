@@ -294,7 +294,7 @@ class DatabaseSeeder extends Seeder
         $receta3 = Receta::create([
             'nombre' => 'Tacos de Camarones al Chipotle',
             'descripcion' => 'Tacos mexicanos rellenos de camarones salteados en una salsa picante de chipotle, acompañados de guacamole y cilantro fresco.',
-            'id_chef' => 3,
+            'id_chef' => 2,
             'img_url'=>'https://www.diariodepalenque.com.mx/wp-content/uploads/2016/09/tacos-camaron-al-chipotle.jpg',
         ]);
 

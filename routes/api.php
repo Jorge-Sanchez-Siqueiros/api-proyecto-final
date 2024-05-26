@@ -7,6 +7,7 @@ use App\Http\Controllers\RecipesController;
 use App\Http\Controllers\IngredienteController;
 use App\Http\Controllers\PasoController;
 use App\Http\Controllers\RecetaFavController;
+use App\Http\Controllers\DashboardController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -28,6 +29,8 @@ Route::get("/recetas/{id}",[RecipesController::class,'getRecetaById']);
 Route::get('/favoritas/{id}', [RecetaFavController::class, 'returnFavorites']);
 
 Route::get('/misRecetas/{id}', [RecipesController::class, 'getRecetasByChef']);
+
+Route::get('/dashboard', [DashboardController::class, 'datos']);
 
 Route::post('/recetas', [RecipesController::class, 'create']);
 Route::put('/recetas/{id}', [RecipesController::class, 'update']);
